@@ -1,0 +1,24 @@
+<div class="error-message-container" ng-if="error" ng-class="getErrorClass()" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="error-card">
+        <div class="error-header">
+            <span class="error-icon" aria-hidden="true">{{ getErrorIcon() }}</span>
+            <h3 class="error-title" id="errorTitle">{{ getErrorTitle() }}</h3>
+            <button 
+                class="error-dismiss" 
+                ng-click="dismiss()"
+                aria-label="Dismiss {{getErrorTitle()}} message"
+                ng-if="onDismiss"
+                tabindex="0"
+            >
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="error-body" aria-describedby="errorTitle">
+            <p class="error-message">{{ error.message }}</p>
+            <p class="error-guidance">{{ getActionableGuidance() }}</p>
+        </div>
+        <div class="error-footer" ng-if="error.timestamp">
+            <small class="error-timestamp" aria-label="Error occurred at {{error.timestamp | date:'medium'}}">{{ error.timestamp | date:'medium' }}</small>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="weather-forecast" ng-if="forecastData" role="region" aria-label="5-day weather forecast">
+    <!-- Forecast Header -->
+    <div class="forecast-header">
+        <h3 id="forecastTitle">5-Day Forecast</h3>
+        <p class="forecast-location">{{ forecastData.cityName }}, {{ forecastData.country }}</p>
+    </div>
+    
+    <!-- Forecast Days Grid -->
+    <div class="forecast-days" role="list" aria-labelledby="forecastTitle">
+        <div class="forecast-day-card" 
+             ng-repeat="day in formattedForecasts track by day.date"
+             role="listitem"
+             tabindex="0"
+             aria-label="Forecast for {{day.formattedDate}}: {{day.condition}}, {{day.description}}, high {{day.tempHigh | number:1}} {{getUnitSymbol()}}, low {{day.tempLow | number:1}} {{getUnitSymbol()}}"
+             ng-keydown="$event.keyCode === 13 && $event.target.click()">
+            
+            <!-- Date Display -->
+            <div class="forecast-date">
+                <span class="day-name">{{ day.formattedDate }}</span>
+            </div>
+            
+            <!-- Weather Icon -->
+            <div class="forecast-icon">
+                <img 
+                    ng-if="day.icon"
+                    ng-src="https://openweathermap.org/img/wn/{{ day.icon }}@2x.png"
+                    alt="{{day.condition}}: {{day.description}}"
+                    role="img"
+                />
+            </div>
+            
+            <!-- Temperature Range -->
+            <div class="forecast-temps">
+                <div class="temp-high">
+                    <span class="temp-label">High:</span>
+                    <span class="temp-value" aria-label="High temperature {{day.tempHigh | number:1}} {{getUnitSymbol()}}">{{ day.tempHigh | number:1 }}{{ getUnitSymbol() }}</span>
+                </div>
+                <div class="temp-low">
+                    <span class="temp-label">Low:</span>
+                    <span class="temp-value" aria-label="Low temperature {{day.tempLow | number:1}} {{getUnitSymbol()}}">{{ day.tempLow | number:1 }}{{ getUnitSymbol() }}</span>
+                </div>
+            </div>
+            
+            <!-- Weather Condition -->
+            <div class="forecast-condition">
+                <p class="condition-name">{{ day.condition }}</p>
+                <p class="condition-description">{{ day.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>

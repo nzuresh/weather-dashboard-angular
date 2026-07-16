@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html ng-app="weatherDashboard">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body ng-controller="WeatherController as vm">
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+    
+    <div class="container">
+        <header role="banner" class="app-header">
+            <h1>Weather Dashboard</h1>
+            <theme-toggle></theme-toggle>
+        </header>
+        
+        <main role="main" id="main-content">
+            <!-- Search Section -->
+            <div class="search-section" role="search">
+                <form ng-submit="vm.searchCity()" name="searchForm" novalidate aria-label="City weather search form">
+                    <div class="search-container">
+                        <label for="citySearchInput" class="visually-hidden">City name</label>
+                        <input 
+                            id="citySearchInput"
+                            type="text" 
+                            ng-model="vm.searchInput" 
+                            ng-model-options="{ debounce: 300 }"
+                            placeholder="Enter city name..." 
+                            class="search-input"
+                            name="cityName"
+                            required
+                            aria-label="City name search"
+                            aria-describedby="searchHint"
+                            aria-invalid="{{searchForm.cityName.$invalid && searchForm.cityName.$touched}}"
+                        />
+                        <span id="searchHint" class="visually-hidden">Enter a city name to search for weather information</span>
+                        <button 
+                            type="submit" 
+                            class="search-button"
+                            ng-disabled="vm.isLoading"
+                            aria-label="Search for city weather"
+                            aria-busy="{{vm.isLoading}}"
+                        >
+                            Search
+                        </button>
+                    </div>
+                    
+                    <!-- Search History Autocomplete -->
+                    <search-history 
+                        search-input="vm.searchInput" 
+                        on-select="vm.selectFromHistory(city)">
+                    </search-history>
+                </form>
+                
+                <!-- Validation Error Messages -->
+                <error-message 
+                    error="vm.error" 
+                    on-dismiss="vm.dismissError()"
+                    ng-if="vm.error && vm.error.type === 'VALIDATION_ERROR'">
+                </error-message>
+
+                <!-- Temperature Unit Toggle -->
+                <div class="temperature-toggle" role="group" aria-label="Temperature unit controls">
+                    <button 
+                        ng-click="vm.toggleTemperatureUnit()" 
+                        class="toggle-button"
+                        aria-label="Toggle temperature unit between Celsius and Fahrenheit"
+                        aria-pressed="false"
+                        tabindex="0"
+                    >
+                        <span ng-if="vm.temperatureUnit === 'celsius'" aria-hidden="true">°C</span>
+                        <span ng-if="vm.temperatureUnit === 'fahrenheit'" aria-hidden="true">°F</span>
+                        <span class="toggle-label">Switch to {{ vm.temperatureUnit === 'celsius' ? '°F' : '°C' }}</span>
+                    </button>
+                    <span class="current-unit-display" aria-live="polite" aria-atomic="true">
+                        Currently showing: <strong>{{ vm.temperatureUnit === 'celsius' ? 'Celsius (°C)' : 'Fahrenheit (°F)' }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Error Display Section (for non-validation errors) -->
+            <div role="alert" aria-live="assertive" aria-atomic="true">
+                <error-message 
+                    error="vm.error" 
+                    on-dismiss="vm.dismissError()"
+                    ng-if="vm.error && vm.error.type !== 'VALIDATION_ERROR'">
+                </error-message>
+            </div>
+
+            <!-- Loading Indicator -->
+            <loading-indicator is-loading="vm.isLoading" message="Loading weather data..."></loading-indicator>
+
+            <!-- Main Content Area -->
+            <div class="content-grid">
+                <!-- Favorites List Container -->
+                <aside class="favorites-section" role="complementary" aria-label="Favorite cities">
+                    <h2 id="favoritesHeading">Favorite Cities</h2>
+                    
+                    <!-- City List Directive -->
+                    <city-list 
+                        cities="vm.favorites" 
+                        on-select="vm.selectCity(city)" 
+                        on-remove="vm.removeFavorite(cityId)" 
+                        on-refresh="vm.refreshWeather(cityId)"
+                        selected-city="vm.selectedCity"
+                        loading-city-id="vm.loadingCityId"
+                        aria-labelledby="favoritesHeading">
+                    </city-list>
+                </aside>
+
+                <!-- Weather Display Area -->
+                <section class="weather-section" role="region" aria-label="Weather information">
+                    <!-- Current Weather Display -->
+                    <div class="current-weather-container" ng-if="vm.currentWeather">
+                        <div class="section-header">
+                            <h2 id="currentWeatherHeading">Current Weather</h2>
+                            <button 
+                                ng-click="vm.addToFavorites(vm.currentWeather)" 
+                                class="add-favorite-button"
+                                ng-if="vm.currentWeather && !vm.selectedCity"
+                                aria-label="Add {{vm.currentWeather.cityName}} to favorites"
+                                tabindex="0"
+                            >
+                                <span aria-hidden="true">⭐</span> Add to Favorites
+                            </button>
+                        </div>
+                        
+                        <!-- Current Weather Directive -->
+                        <current-weather 
+                            weather-data="vm.currentWeather" 
+                            temperature-unit="vm.temperatureUnit"
+                            aria-labelledby="currentWeatherHeading">
+                        </current-weather>
+                    </div>
+
+                    <!-- Forecast Display -->
+                    <div class="forecast-container" ng-if="vm.forecast">
+                        <!-- Weather Forecast Directive -->
+                        <weather-forecast 
+                            forecast-data="vm.forecast" 
+                            temperature-unit="vm.temperatureUnit">
+                        </weather-forecast>
+                    </div>
+
+                    <!-- Empty State for Weather Display -->
+                    <div class="weather-empty-state" ng-if="!vm.currentWeather && !vm.isLoading" role="status" aria-live="polite">
+                        <p class="empty-icon" aria-hidden="true">🌤️</p>
+                        <p class="empty-message">No weather data to display</p>
+                        <p class="empty-hint">Search for a city or select one from your favorites</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Angular 1.4.7 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    
+    <!-- Configuration (create app/config.js from app/config.example.js) -->
+    <script src="app/config.js"></script>
+    
+    <!-- Application files -->
+    <script src="app/app.js"></script>
+    <script src="app/services/validationService.js"></script>
+    <script src="app/services/storageService.js"></script>
+    <script src="app/services/weatherService.js"></script>
+    <script src="app/controllers/weatherController.js"></script>
+    <script src="app/directives/errorMessage.js"></script>
+    <script src="app/directives/loadingIndicator.js"></script>
+    <script src="app/directives/loadingSpinner.js"></script>
+    <script src="app/directives/currentWeather.js"></script>
+    <script src="app/directives/weatherForecast.js"></script>
+    <script src="app/services/themeService.js"></script>
+    <script src="app/services/searchHistoryService.js"></script>
+    <script src="app/directives/themeToggle.js"></script>
+    <script src="app/directives/searchHistory.js"></script>
+    <script src="app/directives/cityList.js"></script>
+</body>
+</html>

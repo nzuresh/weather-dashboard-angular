@@ -1,0 +1,48 @@
+<div class="current-weather-card" ng-if="weatherData" role="article" aria-label="Current weather for {{weatherData.cityName}}, {{weatherData.country}}">
+    <!-- Weather Header with City Name and Icon -->
+    <div class="weather-header">
+        <h3 id="weatherCityName">{{ weatherData.cityName }}, {{ weatherData.country }}</h3>
+        <img 
+            ng-if="weatherData.icon"
+            ng-src="https://openweathermap.org/img/wn/{{ weatherData.icon }}@2x.png"
+            alt="{{weatherData.condition}}: {{weatherData.description}}"
+            class="weather-icon"
+            role="img"
+        />
+    </div>
+    
+    <!-- Main Temperature Display -->
+    <div class="weather-main">
+        <div class="temperature-display" aria-label="Current temperature {{displayTemperature | number:1}} {{getUnitSymbol()}}">
+            <span class="temp-value" aria-hidden="true">{{ displayTemperature | number:1 }}</span>
+            <span class="temp-unit" aria-hidden="true">{{ getUnitSymbol() }}</span>
+        </div>
+        <p class="weather-condition" aria-label="Weather condition: {{weatherData.condition}}">{{ weatherData.condition }}</p>
+        <p class="weather-description">{{ weatherData.description }}</p>
+    </div>
+    
+    <!-- Weather Details Grid -->
+    <div class="weather-details" role="list" aria-label="Weather details">
+        <div class="detail-item" role="listitem">
+            <span class="detail-label">Feels Like:</span>
+            <span class="detail-value" aria-label="Feels like {{displayFeelsLike | number:1}} {{getUnitSymbol()}}">{{ displayFeelsLike | number:1 }}{{ getUnitSymbol() }}</span>
+        </div>
+        <div class="detail-item" role="listitem">
+            <span class="detail-label">Humidity:</span>
+            <span class="detail-value" aria-label="Humidity {{weatherData.humidity}} percent">{{ weatherData.humidity }}%</span>
+        </div>
+        <div class="detail-item" role="listitem">
+            <span class="detail-label">Wind Speed:</span>
+            <span class="detail-value" aria-label="Wind speed {{weatherData.windSpeed | number:1}} meters per second">{{ weatherData.windSpeed | number:1 }} m/s</span>
+        </div>
+        <div class="detail-item" role="listitem">
+            <span class="detail-label">Pressure:</span>
+            <span class="detail-value" aria-label="Atmospheric pressure {{weatherData.pressure}} hectopascals">{{ weatherData.pressure }} hPa</span>
+        </div>
+    </div>
+    
+    <!-- Last Updated Timestamp -->
+    <p class="last-updated" aria-label="Last updated {{weatherData.timestamp | date:'medium'}}">
+        Last updated: {{ weatherData.timestamp | date:'medium' }}
+    </p>
+</div>
